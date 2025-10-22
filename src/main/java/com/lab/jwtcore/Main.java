@@ -1,27 +1,29 @@
 package com.lab.jwtcore;
 
+import com.lab.jwtcore.service.AuthService;
 import com.lab.jwtcore.util.JwtUtil;
 
 public class Main {
     public static void main(String[] args) {
-        String token = JwtUtil.generateToken("user01", "예린");
-        System.out.println("Generated JWT Token: " + token);
+        AuthService authService = new AuthService();
 
-        JwtUtil.validateToken(token);
+        // 로그인 -> 토큰 발급
+        String token = authService.login("user", "pass");
 
-        // 1. 토큰 변조 테스트
-        System.out.println("Invalid Token Test: ");
-        JwtUtil.validateToken(token + "x");// 토큰 변조
+        if(token != null) {
+            System.out.println("발급된 토큰: " + token);
+            authService.verifyToken(token);
 
-        // 2. 만료 토큰 테스트
-        try{
-            System.out.println("\n 3초 대기 중...");
-            Thread.sleep(3000);
-        } catch(InterruptedException e) {
-            e.printStackTrace();
+            // 2. 만료 토큰 테스트
+            try{
+                System.out.println("3초 대기 중...");
+                Thread.sleep(3000);
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("2차 검증 - 3초 후");
+            authService.verifyToken(token);
         }
-
-        System.out.println("2차 검증 - 3초 후");
-        JwtUtil.validateToken(token);
     }
 }
