@@ -1,14 +1,15 @@
 package com.lab.jwtcore;
 
+import com.lab.jwtcore.model.User;
 import com.lab.jwtcore.service.AuthService;
-import com.lab.jwtcore.util.JwtUtil;
 
 public class Main {
     public static void main(String[] args) {
         AuthService authService = new AuthService();
+        User user = new User("user", "예린", "pass");
 
         // 로그인 -> 토큰 발급
-        String token = authService.login("user", "pass");
+        String token = authService.login(user);
 
         if(token != null) {
             System.out.println("발급된 토큰: " + token);
