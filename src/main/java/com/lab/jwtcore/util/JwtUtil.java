@@ -19,7 +19,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                    .setSubject(userId) // 토큰 주제(보통 userId)
-                   .claim("name",userName) // 사용자 이름
+                   .claim("name", userName) // 사용자 이름
                    .setIssuedAt(new Date(now)) // 발급 시간
                    .setExpiration(new Date(now + expireTime)) // 만료 시간
                    .signWith(key) // 비밀키로 서명
