@@ -11,14 +11,27 @@ public class JwtUtil {
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     // 3. 토큰 생성 메서드
+    // Access Token
     public static String generateToken(String userId, String userName) {
         long now = System.currentTimeMillis();
-        // long expireTime = 1000 * 60 * 10; // 10분
+//         long expireTime = 1000 * 60 * 10; // 10분
         long expireTime = 1000 * 3; // 3초
 
         return Jwts.builder()
                    .setSubject(userId) // 토큰 주제(보통 userId)
                    .claim("name",userName) // 사용자 이름
+                   .setIssuedAt(new Date(now)) // 발급 시간
+                   .setExpiration(new Date(now + expireTime)) // 만료 시간
+                   .signWith(key) // 비밀키로 서명
+                   .compact(); // JWT 문자열 생성
+    }
+
+    // Refresh Token
+    public static String generateRefreshToken(String userId) {
+        long now = System.currentTimeMillis();
+        long expireTime = 1000 * 60 * 60 * 24 *7; // 7일
+        return Jwts.builder()
+                   .setSubject(userId) // 토큰 주제(보통 userId)
                    .setIssuedAt(new Date(now)) // 발급 시간
                    .setExpiration(new Date(now + expireTime)) // 만료 시간
                    .signWith(key) // 비밀키로 서명
