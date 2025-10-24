@@ -54,6 +54,7 @@ public class JwtUtil {
 
         } catch(JwtException e) { // 유효하지 않은 토큰일 경우 발생 (만료, 위조 등)
             System.out.println("Invalid JWT token: " + e.getMessage());
+            throw e;
         }
     }
 
