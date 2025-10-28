@@ -15,6 +15,8 @@ public class AuthController {
     // 로그인 → Access + Refresh Token 발급
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
+        System.out.println(user.getId());
+        System.out.println(user.getPassword());
         AuthTokens tokens = authService.login(user);
 
         if(tokens == null) {

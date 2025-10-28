@@ -15,7 +15,7 @@ public class JwtUtil {
     public static String generateToken(String userId, String userName) {
         long now = System.currentTimeMillis();
 //         long expireTime = 1000 * 60 * 10; // 10분
-        long expireTime = 1000 * 3; // 3초
+        long expireTime = 1000 * 10; // 10초
 
         return Jwts.builder()
                    .setSubject(userId) // 토큰 주제(보통 userId)
