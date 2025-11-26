@@ -33,6 +33,6 @@ public class AuthController {
     public ResponseEntity<?> secure(@RequestHeader("Authorization") String header) {
         String token = header.substring(7); // Bearer 제거
         JwtUtil.validateToken(token);
-        return ResponseEntity.ok("접근 허용됨(Protected Resource)");
+        return ResponseEntity.ok(ApiResponse.success("접근 허용됨(Protected Resource)"));
     }
 }
