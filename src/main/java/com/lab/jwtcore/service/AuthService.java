@@ -7,13 +7,37 @@ import com.lab.jwtcore.store.RefreshStore;
 import com.lab.jwtcore.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
+@Service
 public class AuthService {
 
     // 싱글톤 인스턴스 주입
-    private final RefreshStore refreshStore = RefreshStore.getInstance();
+    private RefreshStore refreshStore = RefreshStore.getInstance();
 
+    // ================================
+    // v2에서 필요한 메서드 3개 추가
+    // ================================
+
+    // AccessToken 생성
+    public String generateAccessToken(String userId, String userName) {
+        return JwtUtil.generateToken(userId, userName);
+    }
+
+    // RefreshToken 생성
+    public String generateRefreshToken(String userId) {
+        return JwtUtil.generateRefreshToken(userId);
+    }
+
+    // RefreshToken 저장
+    public void storeRefreshToken(String userId, String refreshToken) {
+        refreshStore.save(new RefreshTokenRecord(userId, refreshToken));
+    }
+
+    // ================================
+    // 기존 v1 로그인 방식
+    // ================================
     // 로그인 메서드(DB가 없으니 임시 사용자)
     // 로그인 시 Access + Refresh Token 동시 발급
     public AuthTokens login(User user) {

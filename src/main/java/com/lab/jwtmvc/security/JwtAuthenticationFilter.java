@@ -19,7 +19,6 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -43,8 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 3. 토큰이 유효한지 검증
-        String userId = jwtUtil.getUsername(token);
-        if(userId != null && jwtUtil.validate(token)) {
+        String userId = JwtUtil.getUsername(token);
+        if(userId != null && JwtUtil.validate(token)) {
             // 4. 유저 정보 가져오기
             UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
 
