@@ -7,10 +7,12 @@ import java.security.Key;
 import java.util.Date;
 
 public class JwtUtil {
-    // 1. 비밀키 하나 생성(HS256 알고리즘 사용)
+    // 비밀키 생성(HS256 알고리즘 사용)
     private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    // 3. 토큰 생성 메서드
+    // -------------
+    // 토큰 생성
+    // -------------
     // Access Token
     public static String generateToken(String userId, String userName) {
         long now = System.currentTimeMillis();
@@ -37,8 +39,42 @@ public class JwtUtil {
                    .signWith(key) // 비밀키로 서명
                    .compact(); // JWT 문자열 생성
     }
+    // -------------
+    // 토큰 파싱
+    // -------------
+    public static Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                   .setSigningKey(key) // 생성시 사용한 키로 검증
+                   .build()
+                   .parseClaimsJws(token) // 토큰 구조를 해석해서 Payload 추출
+                   .getBody(); // Claims 반환
+    }
 
-    // 4. JWT 검증 메서드
+    public static String getUserName(String token) {
+        return (String) getClaims(token).get("name");
+    }
+
+    public static String getUsername(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    // =====================
+    // 유효성 검증
+    // =====================
+
+    public static boolean validate(String token) {
+        try{
+            Jwts.parserBuilder()
+               .setSigningKey(key) // 생성시 사용한 키로 검증
+               .build()
+               .parseClaimsJws(token); // 토큰 구조를 해석해서 Payload 추출
+            return true; // 예외가 발생하지 않으면 유효한 토큰
+        } catch (JwtException e) { // 유효하지 않은 토큰일 경우 발생 (만료, 위조 등)
+            return false;
+        }
+    }
+
+    // 기존 validateToken 유지(필요 시 사용)
     public static void validateToken(String token) {
         try{
             Jws<Claims> claims = Jwts.parserBuilder()
@@ -58,7 +94,7 @@ public class JwtUtil {
         }
     }
 
-    // 2. 키를 확인하기 위한 메서드(테스트용)
+    // 키를 확인하기 위한 메서드(테스트용)
     public static void printKeyInfo() {
         System.out.println("Secret key algorithm: " + key.getAlgorithm());
     }
