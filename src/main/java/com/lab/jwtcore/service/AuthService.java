@@ -5,7 +5,10 @@ import com.lab.jwtcore.model.RefreshTokenRecord;
 import com.lab.jwtcore.model.User;
 import com.lab.jwtcore.store.RefreshStore;
 import com.lab.jwtcore.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AuthService {
 
     // 싱글톤 인스턴스 주입
@@ -16,24 +19,23 @@ public class AuthService {
     public AuthTokens login(User user) {
 
         if("user".equals(user.getId()) && "pass".equals(user.getPassword())) {
-            System.out.println("로그인 성공 (" + user.getName() + ")");
+            log.info("로그인 성공: {}", user.getName());
 
             String accessToken = JwtUtil.generateToken(user.getId(), user.getName());
             String refreshToken  = JwtUtil.generateRefreshToken (user.getId());
 
             // 리프레시 토큰 저장
             refreshStore.save(new RefreshTokenRecord(user.getId(), refreshToken));
-
             return new AuthTokens(accessToken, refreshToken);
         } else {
-            System.out.println("로그인 실패");
-            return null;
+            log.warn("로그인 실패 - id: {}", user.getId());
+            throw new JwtException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
     }
 
     // 토큰 검증 메서드
     public void verifyToken(String token) {
-        JwtUtil.validateToken(token);
+        JwtUtil.validateToken(token); // 유효하지 않으면 예외 발생
     }
 
     // Refresh Token 검증 후 Access Token 재발급
@@ -41,18 +43,18 @@ public class AuthService {
         RefreshTokenRecord record = refreshStore.findByUserId(userId);
 
         if(record == null || !record.equalsTo(refreshToken)) {
-            System.out.println("유효하지 않은 Refresh Token");
-            return null;
+            log.warn("리프레시 토큰 불일치 (userId: {})", userId);
+            throw new JwtException("유효하지 않은 Refresh Token");
         }
 
         try{
             JwtUtil.validateToken(refreshToken);
             String newAccess = JwtUtil.generateToken(userId, "예린");
-            System.out.println("새로운 Access Token 발급");
+            log.info("새로운 Access Token 발급 (userId={})", userId);
             return newAccess;
         } catch(Exception e) {
-            System.out.println("Refresh Token 만료 - 다시 로그인 필요");
-            return null;
+            log.warn("Refresh Token 만료 (userId: {})", userId);
+            throw new JwtException("Refresh Token이 만료되었습니다. 다시 로그인하세요.");
         }
     }
 }
