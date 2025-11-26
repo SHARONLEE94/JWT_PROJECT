@@ -37,7 +37,7 @@ public class AuthControllerTest {
     @Test
     @DisplayName("로그인 성공 시 AccessToken/RefreshToken이 반환되어야 한다.")
     void loginSuccessTest() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                                   .contentType(MediaType.APPLICATION_JSON)
                                   .content(objectMapper.writeValueAsString(testUser)))
                                   .andExpect(status().isOk())
@@ -54,7 +54,7 @@ public class AuthControllerTest {
     @DisplayName("AccessToken이 유효하면 secure API 접근 가능해야 한다")
     void secureAccessTest() throws Exception {
         // 로그인 → 토큰 발급
-        String loginResponse = mockMvc.perform(post("/api/auth/login")
+        String loginResponse = mockMvc.perform(post("/api/v1/auth/login")
                                       .contentType(MediaType.APPLICATION_JSON)
                                       .content(objectMapper.writeValueAsString(testUser)))
                                       .andExpect(status().isOk())
@@ -69,7 +69,7 @@ public class AuthControllerTest {
                                          .asText();
 
         // secure API 호출
-        mockMvc.perform(get("/api/auth/secure")
+        mockMvc.perform(get("/api/v1/auth/secure")
                .header("Authorization", "Bearer " + accessToken))
                .andExpect(jsonPath("$.success").value(true))
                .andExpect(jsonPath("$.data").value("접근 허용됨(Protected Resource)"));
@@ -80,7 +80,7 @@ public class AuthControllerTest {
     void loginFailTest() throws Exception {
         User invalidUser = new User("invalidUser", "Invalid", "wrongPass");
 
-        MvcResult result = mockMvc.perform(post("/api/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                                   .contentType(MediaType.APPLICATION_JSON)
                                   .content(objectMapper.writeValueAsString(invalidUser)))
                                   .andExpect(status().isUnauthorized())
